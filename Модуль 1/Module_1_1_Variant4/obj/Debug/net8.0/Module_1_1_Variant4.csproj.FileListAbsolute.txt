@@ -1,0 +1,30 @@
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.exe
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.deps.json
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.runtimeconfig.json
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.pdb
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.AssemblyInfoInputs.cache
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.AssemblyInfo.cs
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.csproj.CoreCompileInputs.cache
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.sourcelink.json
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\refint\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.pdb
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.genruntimeconfig.cache
+C:\Users\HONOR\Desktop\repozit\Module_1_1_Variant4\Module_1_1_Variant4\obj\Debug\net8.0\ref\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.exe
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.deps.json
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.runtimeconfig.json
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\bin\Debug\net8.0\Module_1_1_Variant4.pdb
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.AssemblyInfoInputs.cache
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.AssemblyInfo.cs
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.csproj.CoreCompileInputs.cache
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.sourcelink.json
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\refint\Module_1_1_Variant4.dll
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.pdb
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\Module_1_1_Variant4.genruntimeconfig.cache
+C:\Users\HONOR\Desktop\repozit\Модуль 1\Module_1_1_Variant4\obj\Debug\net8.0\ref\Module_1_1_Variant4.dll
