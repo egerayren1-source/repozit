@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Module_1_2
 {
@@ -6,18 +7,21 @@ namespace Module_1_2
     {
         static void Main(string[] args)
         {
+            // главный цикл программы для выбора задач
             while (true)
             {
-                Console.WriteLine("\n--- Модуль 1.2 ---");
-                Console.WriteLine("1. Задача 1 (Нормировка массива)");
-                Console.WriteLine("2. Задача 2 (Замена максимального)");
-                Console.WriteLine("3. Задача 3 (Первые K простых чисел)");
-                Console.WriteLine("4. Задача 4 (Элементы между min и max)");
-                Console.WriteLine("5. Задача 5 (Фильтр согласных букв)");
-                Console.WriteLine("6. Задача 6 (Сортировка индексов)");
+                Console.WriteLine();
+                Console.WriteLine("Модуль 1.2");
+                Console.WriteLine("1. Нормировка массива");
+                Console.WriteLine("2. Замена первого максимального элемента");
+                Console.WriteLine("3. Вывод первых K простых чисел");
+                Console.WriteLine("4. Элементы между min и max");
+                Console.WriteLine("5. Фильтрация согласных букв");
+                Console.WriteLine("6. Формирование массива sorted-индексов");
                 Console.WriteLine("0. Выход");
 
-                int choice = ReadInt("Выберите номер задачи: ", 0, 6);
+                // ввод номера задачи от 0 до 6 с проверкой
+                int choice = ReadInt("Выберите номер задачи (0-6): ", 0, 6);
                 if (choice == 0) break;
 
                 Console.Clear();
@@ -33,33 +37,30 @@ namespace Module_1_2
             }
         }
 
-        // задача 1: нормировка массива делением на макс. по модулю
+        // задача 1: делим все элементы массива на максимальный по модулю элемент
         static void Task1()
         {
+            Console.WriteLine("Задача 1: Нормировка массива");
             int n = ReadInt("Введите размер массива N (N > 0): ", 1, int.MaxValue);
             double[] array = new double[n];
 
+            // заполняем массив числами с клавиатуры
             for (int i = 0; i < n; i++)
             {
-                array[i] = ReadDouble($"Введите элемент [{i}]: ");
+                array[i] = ReadDouble($"Элемент [{i}]: ");
             }
 
-            // поиск максимального по модулю элемента
-            double maxAbs = Math.Abs(array[0]);
-            for (int i = 1; i < n; i++)
-            {
-                if (Math.Abs(array[i]) > maxAbs)
-                {
-                    maxAbs = Math.Abs(array[i]);
-                }
-            }
+            // находим самый большой по модулю элемент
+            double maxAbs = array.Select(Math.Abs).Max();
 
+            // если максимум равен нулю, нормировать нельзя
             if (maxAbs == 0)
             {
                 Console.WriteLine("Все элементы равны 0. Нормировка невозможна.");
                 return;
             }
 
+            // делим каждый элемент на найденный максимум и выводим
             Console.WriteLine("\nНормированный массив:");
             for (int i = 0; i < n; i++)
             {
@@ -69,199 +70,158 @@ namespace Module_1_2
             Console.WriteLine();
         }
 
-        // задача 2: замена максимального элемента заданным числом
+        // задача 2: заменяем первый найденный максимум на новое число
         static void Task2()
         {
-            int[] array = new int[10];
+            Console.WriteLine("Задача 2: Замена максимального");
             Random rnd = new Random();
+            int[] array = new int[10];
 
-            Console.WriteLine("Исходный массив (из 10 элементов):");
+            // заполняем массив случайными числами
             for (int i = 0; i < array.Length; i++)
-            {
                 array[i] = rnd.Next(-50, 51);
-                Console.Write($"{array[i]} ");
-            }
-            Console.WriteLine();
 
-            int newValue = ReadInt("\nВведите целое число для замены: ");
+            Console.WriteLine("Исходный массив:\n" + string.Join(" ", array));
 
-            // поиск индекса первого максимального элемента
-            int maxIndex = 0;
-            for (int i = 1; i < array.Length; i++)
-            {
-                if (array[i] > array[maxIndex])
-                {
-                    maxIndex = i;
-                }
-            }
+            int newValue = ReadInt("\nВведите значение для замены: ");
 
-            array[maxIndex] = newValue;
+            // ищем индекс первого максимального элемента и заменяем его
+            int maxIdx = Array.IndexOf(array, array.Max());
+            array[maxIdx] = newValue;
 
-            Console.WriteLine("\nИзмененный массив:");
-            foreach (int item in array)
-            {
-                Console.Write($"{item} ");
-            }
-            Console.WriteLine();
+            Console.WriteLine("\nИзмененный массив:\n" + string.Join(" ", array));
         }
 
-        // задача 3: вывод K простых чисел по 10 в строке
+        // задача 3: генерируем и выводим k простых чисел по 10 штук в строке
         static void Task3()
         {
-            int k = ReadInt("Введите количество простых чисел K (K > 0): ", 1, int.MaxValue);
-            int count = 0;
-            int number = 2; // первое простое число
+            Console.WriteLine("Задача 3: K простых чисел");
+            int k = ReadInt("Введите количество простых чисел K: ", 1, int.MaxValue);
+
+            int count = 0; // счетчик найденных простых чисел
+            int num = 2;    // проверяемое число
 
             Console.WriteLine($"\nПервые {k} простых чисел:");
             while (count < k)
             {
-                if (IsPrime(number))
+                // если число простое, выводим его
+                if (IsPrime(num))
                 {
-                    Console.Write($"{number}\t");
+                    Console.Write($"{num}\t");
                     count++;
 
-                    // перевод строки каждые 10 чисел
+                    // делаем перенос строки каждые 10 чисел
                     if (count % 10 == 0)
-                    {
                         Console.WriteLine();
-                    }
                 }
-                number++;
+                num++;
             }
             Console.WriteLine();
         }
 
-        // задача 4: элементы между min и max (включая их)
+        // задача 4: выводим подмассив от минимального до максимального элемента
         static void Task4()
         {
-            int k = ReadInt("Введите размер массива K (K > 0): ", 1, int.MaxValue);
+            Console.WriteLine("Задача 4: Элементы между min и max");
+            int k = ReadInt("Введите размер массива K: ", 1, int.MaxValue);
             int a = ReadInt("Введите левую границу A: ");
             int b = ReadInt("Введите правую границу B (B > A): ", a + 1, int.MaxValue);
 
-            int[] array = new int[k];
             Random rnd = new Random();
+            int[] array = new int[k];
 
-            Console.WriteLine("\nСгенерированный массив:");
+            // заполняем случайными числами в диапазоне от a до b
             for (int i = 0; i < k; i++)
-            {
-                array[i] = rnd.Next(a, b);
-                Console.Write($"{array[i]} ");
-            }
-            Console.WriteLine();
+                array[i] = rnd.Next(a, b + 1);
 
-            // поиск индексов минимального и максимального элементов
-            int minIndex = 0;
-            int maxIndex = 0;
+            Console.WriteLine("\nСгенерированный массив:\n" + string.Join(" ", array));
 
-            for (int i = 1; i < k; i++)
-            {
-                if (array[i] < array[minIndex]) minIndex = i;
-                if (array[i] > array[maxIndex]) maxIndex = i;
-            }
+            // находим индексы минимума и максимума
+            int minIdx = Array.IndexOf(array, array.Min());
+            int maxIdx = Array.IndexOf(array, array.Max());
 
-            int start = Math.Min(minIndex, maxIndex);
-            int end = Math.Max(minIndex, maxIndex);
+            // определяем левую и правую границу для цикла
+            int start = Math.Min(minIdx, maxIdx);
+            int end = Math.Max(minIdx, maxIdx);
 
-            Console.WriteLine($"\nИндекс min: {minIndex}, индекс max: {maxIndex}");
-            Console.WriteLine("Элементы между ними (включая границы):");
+            Console.WriteLine($"\nИндекс min: {minIdx}, индекс max: {maxIdx}");
+            Console.Write("Элементы между ними (включая границы): ");
+
+            // выводим все элементы от меньшего индекса до большего
             for (int i = start; i <= end; i++)
             {
-                Console.Write($"{array[i]} ");
+                Console.Write(array[i] + " ");
             }
             Console.WriteLine();
         }
 
-        // задача 5: фильтрация русских согласных букв
+        // задача 5: выбираем из массива символов только согласные буквы
         static void Task5()
         {
-            int k = ReadInt("Введите размер массива K (K > 0): ", 1, int.MaxValue);
+            Console.WriteLine("Задача 5: Согласные буквы");
+            int k = ReadInt("Введите размер массива K: ", 1, int.MaxValue);
 
-            string vowels = "аеёиоуыэюя";
             string alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-
-            char[] source = new char[k];
-            char[] consonantsTemp = new char[k];
-            int count = 0;
+            string vowels = "аеёиоуыэюя";
 
             Random rnd = new Random();
+            char[] source = new char[k];
 
-            // генерация букв и выборка согласных
+            // генерируем случайный массив символов
             for (int i = 0; i < k; i++)
-            {
                 source[i] = alphabet[rnd.Next(alphabet.Length)];
 
-                // проверка, что символ - буква и не гласная
-                if (char.IsLetter(source[i]) && !vowels.Contains(source[i]))
-                {
-                    consonantsTemp[count] = source[i];
-                    count++;
-                }
-            }
+            // оставляем только те буквы, которых нет в строке гласных
+            char[] consonants = source.Where(c => !vowels.Contains(c)).ToArray();
 
-            // формирование итогового массива точного размера
-            char[] consonants = new char[count];
-            Array.Copy(consonantsTemp, consonants, count);
-
-            Console.WriteLine("\nИсходный массив:");
-            Console.WriteLine(string.Join(" ", source));
-
-            Console.WriteLine("\nМассив согласных букв:");
-            Console.WriteLine(count > 0 ? string.Join(" ", consonants) : "Согласные не найдены");
+            Console.WriteLine("\nИсходный массив символов:\n" + string.Join(" ", source));
+            Console.WriteLine("\nМассив согласных букв:\n" +
+                (consonants.Length > 0 ? string.Join(" ", consonants) : "Согласных нет"));
         }
 
-        // задача 6: массив индексов, сортирующий исходный массив по возрастанию
+        // задача 6: создаем массив индексов, сортирующий исходный массив
         static void Task6()
         {
-            double[] array = new double[10];
-            int[] indices = new int[10];
+            Console.WriteLine("Задача 6: Массив индексов");
             Random rnd = new Random();
+            double[] array = new double[10];
 
-            Console.WriteLine("Исходный вещественный массив [-10, 10):");
+            // заполняем случайными вещественными числами
             for (int i = 0; i < array.Length; i++)
-            {
                 array[i] = -10.0 + rnd.NextDouble() * 20.0;
-                indices[i] = i; // начальная инициализация индексов
+
+            Console.WriteLine("Исходный массив:");
+            for (int i = 0; i < array.Length; i++)
                 Console.Write($"{array[i]:F2}\t");
-            }
             Console.WriteLine();
 
-            // сортировка массива индексов на основе значений исходного массива
-            for (int i = 0; i < indices.Length - 1; i++)
-            {
-                for (int j = i + 1; j < indices.Length; j++)
-                {
-                    if (array[indices[i]] > array[indices[j]])
-                    {
-                        int temp = indices[i];
-                        indices[i] = indices[j];
-                        indices[j] = temp;
-                    }
-                }
-            }
+            // сортируем индексы от 0 до n по возрастанию значений элементов
+            int[] indices = Enumerable.Range(0, array.Length)
+                                      .OrderBy(i => array[i])
+                                      .ToArray();
 
-            Console.WriteLine("\nМассив индексов в порядке возрастания значений:");
+            Console.WriteLine("\nМассив индексов (по возрастанию элементов):");
             Console.WriteLine(string.Join(" ", indices));
 
+            // выводим элементы по отсортированным индексам для проверки
             Console.WriteLine("\nПроверка (элементы по новым индексам):");
             foreach (int idx in indices)
-            {
                 Console.Write($"{array[idx]:F2}\t");
-            }
             Console.WriteLine();
         }
 
         // проверка числа на простоту
-        static bool IsPrime(int number)
+        static bool IsPrime(int n)
         {
-            if (number < 2) return false;
-            for (int i = 2; i * i <= number; i++)
+            if (n < 2) return false;
+            for (int i = 2; i * i <= n; i++)
             {
-                if (number % i == 0) return false;
+                if (n % i == 0) return false;
             }
             return true;
         }
 
-        // безопасный ввод целых чисел
+        // ввод целого числа с проверкой на тип и диапазон
         static int ReadInt(string prompt, int min = int.MinValue, int max = int.MaxValue)
         {
             int result;
@@ -269,14 +229,12 @@ namespace Module_1_2
             {
                 Console.Write(prompt);
                 if (int.TryParse(Console.ReadLine(), out result) && result >= min && result <= max)
-                {
                     return result;
-                }
-                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                Console.WriteLine("Ошибка! Введите корректное целое число.");
             }
         }
 
-        // безопасный ввод вещественных чисел
+        // ввод вещественного числа с проверкой
         static double ReadDouble(string prompt)
         {
             double result;
@@ -284,10 +242,8 @@ namespace Module_1_2
             {
                 Console.Write(prompt);
                 if (double.TryParse(Console.ReadLine(), out result))
-                {
                     return result;
-                }
-                Console.WriteLine("Некорректный ввод. Попробуйте снова.");
+                Console.WriteLine("Ошибка! Введите число.");
             }
         }
     }
