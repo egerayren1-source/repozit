@@ -1,4 +1,5 @@
 ﻿using System;
+
 class Program
 {
     static void Main()
@@ -25,6 +26,7 @@ class Program
         int reducedDenominator = denominator / gcd;
 
         Console.WriteLine($"\nисходная дробь: {numerator}/{denominator}");
+        Console.WriteLine($"наибольший общий делитель (НОД): {gcd}");
         Console.WriteLine($"сокращенная дробь: {reducedNumerator}/{reducedDenominator}");
     }
 

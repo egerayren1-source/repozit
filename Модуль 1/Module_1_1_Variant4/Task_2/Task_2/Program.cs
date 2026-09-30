@@ -4,6 +4,8 @@ class Program
     static void Main()
     {
         // ввод трех чисел
+        Console.WriteLine($"расчёт сернего арифметического по 3 числам");
+
         Console.Write("введите первое число: ");
         double a = Convert.ToDouble(Console.ReadLine());
 
