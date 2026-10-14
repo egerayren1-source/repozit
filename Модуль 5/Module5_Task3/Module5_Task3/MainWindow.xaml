@@ -1,0 +1,28 @@
+﻿<Window x:Class="Module5_Task3.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Учет задач" Height="450" Width="600" WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox x:Name="TxtTaskInput" Width="430" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+            <Button Content="Добавить" Width="100" Height="30" Click="BtnAdd_Click"/>
+        </StackPanel>
+
+        <ListBox x:Name="TaskListBox" Grid.Row="1" Margin="0,0,0,10">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox Content="{Binding Text}" IsChecked="{Binding IsCompleted}" Margin="3" FontSize="14"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Grid.Row="2" Content="Удалить выбранную" Width="150" Height="30" 
+                HorizontalAlignment="Left" Click="BtnDelete_Click"/>
+    </Grid>
+</Window>

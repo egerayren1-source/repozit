@@ -1,0 +1,50 @@
+﻿<Window x:Class="Module5_Task1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Рисование на холсте" Height="595" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель инструментов -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Label Content="Фигура:" VerticalAlignment="Center" FontWeight="Bold"/>
+            <ComboBox x:Name="CmbShape" Width="110" Height="25" Margin="5,0,15,0" VerticalContentAlignment="Center">
+                <ComboBoxItem Content="Линия" IsSelected="True"/>
+                <ComboBoxItem Content="Круг"/>
+                <ComboBoxItem Content="Квадрат"/>
+            </ComboBox>
+
+            <Label Content="Цвет:" VerticalAlignment="Center" FontWeight="Bold"/>
+            <ComboBox x:Name="CmbColor" Width="110" Height="25" Margin="5,0,15,0" VerticalContentAlignment="Center">
+                <ComboBoxItem Content="Черный" IsSelected="True"/>
+                <ComboBoxItem Content="Красный"/>
+                <ComboBoxItem Content="Синий"/>
+                <ComboBoxItem Content="Зеленый"/>
+            </ComboBox>
+
+            <Label Content="Толщина:" VerticalAlignment="Center" FontWeight="Bold"/>
+            <ComboBox x:Name="CmbThickness" Width="60" Height="25" Margin="5,0,20,0" VerticalContentAlignment="Center">
+                <ComboBoxItem Content="1"/>
+                <ComboBoxItem Content="2" IsSelected="True"/>
+                <ComboBoxItem Content="4"/>
+                <ComboBoxItem Content="6"/>
+            </ComboBox>
+
+            <Button x:Name="BtnClear" Content="Очистить холст" Width="110" Height="25" Click="BtnClear_Click"/>
+        </StackPanel>
+
+        <!-- Холст для рисования -->
+        <Border Grid.Row="1" BorderBrush="#FFCCCCCC" BorderThickness="1">
+            <!-- ОБЯЗАТЕЛЬНО добавлен Background="Transparent", чтобы Canvas ловил клики мыши -->
+            <Canvas x:Name="DrawingCanvas" 
+                    Background="Transparent"
+                    ClipToBounds="True"
+                    MouseLeftButtonDown="DrawingCanvas_MouseLeftButtonDown" 
+                    MouseLeftButtonUp="DrawingCanvas_MouseLeftButtonUp" 
+                    MouseMove="DrawingCanvas_MouseMove"/>
+        </Border>
+    </Grid>
+</Window>
