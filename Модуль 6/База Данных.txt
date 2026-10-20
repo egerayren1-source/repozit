@@ -1,0 +1,79 @@
+-- 1. База данных и таблица для Задания 1 (Сотрудники)
+CREATE DATABASE IF NOT EXISTS employee_db;
+USE employee_db;
+
+CREATE TABLE IF NOT EXISTS employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    position VARCHAR(100) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL
+);
+
+TRUNCATE TABLE employees;
+
+-- Добавление тестовых сотрудников
+INSERT INTO employees (full_name, position, department, salary) VALUES 
+('Ковалёв Иван Игоревич', 'Главный разработчик', 'IT отдел', 120000.00),
+('Филипков Захар Николаевич', 'Бухгалтер', 'Бухгалтерия', 750.00);
+
+
+-- 2. База данных и таблица для Задания 2 (Задачи)
+CREATE DATABASE IF NOT EXISTS task_db;
+USE task_db;
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'Новая',
+    due_date DATE NOT NULL
+);
+
+TRUNCATE TABLE tasks;
+
+-- Добавление тестовой задачи
+INSERT INTO tasks (title, description, status, due_date) VALUES 
+('Сдать модуль 6', 'Написать WPF приложение и подключить MySQL', 'В работе', '2026-10-25');
+
+
+-- 3. База данных и таблица для Задания 3 (Библиотека)
+CREATE DATABASE IF NOT EXISTS library_db;
+USE library_db;
+
+CREATE TABLE IF NOT EXISTS books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    year_published INT NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE
+);
+
+TRUNCATE TABLE books;
+
+-- Добавление тестовой книги
+INSERT INTO books (title, author, year_published, is_available) VALUES 
+('Чистый код', 'Роберт Мартин', 2008, TRUE),
+('CLR via C#', 'Джеффри Рихтер', 2013, TRUE),
+('Мастер и Маргарита', 'Михаил Булгаков', 1967, FALSE);
+
+
+-- 4. База данных и таблица для Задания 4 (Финансы)
+CREATE DATABASE IF NOT EXISTS finance_db;
+USE finance_db;
+
+CREATE TABLE IF NOT EXISTS transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(20) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    transaction_date DATE NOT NULL,
+    comment TEXT
+);
+
+TRUNCATE TABLE transactions;
+
+-- Добавление тестовой финансовой записи
+INSERT INTO transactions (type, category, amount, transaction_date, comment) VALUES 
+('Доход', 'Стипендия / Зарплата', 25000.00, '2026-10-01', 'Зачисление на карту'),
+('Расход', 'Продукты', 3200.00, '2026-10-15', 'Покупка в магазине');
