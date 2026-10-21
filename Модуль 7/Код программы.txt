@@ -1,0 +1,424 @@
+using System.Threading.Tasks;
+using System;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+
+namespace KR_METOD_MK
+{
+    // Класс-модель параметров (согласно Таблице 2.2.1)
+    public class SimulationParameters
+    {
+        public double S_0 { get; set; }    // Начальная стоимость актива
+        public double Mu { get; set; }     // Коэффициент ожидаемой доходности
+        public double Sigma { get; set; }  // Историческая волатильность
+        public double T { get; set; }      // Временной горизонт прогнозирования
+        public int M { get; set; }         // Количество шагов дискретизации
+        public int N { get; set; }         // Объем статистической выборки
+        public double P { get; set; }      // Уровень доверительной вероятности
+    }
+
+    // Класс-модель результатов (согласно Таблице 2.2.1)
+    public class SimulationResults
+    {
+        public double[][] PriceMatrix { get; set; }        // Двумерный ступенчатый массив траекторий
+        public double[] TerminalPrices { get; set; }       // Одномерный массив терминальных цен
+        public double ExpectedValue { get; set; }          // Выборочное среднее
+        public double Median { get; set; }                 // Медиана
+        public double Variance { get; set; }               // Дисперсия
+        public double StandardDeviation { get; set; }      // Стандартное отклонение
+        public double[] ConfidenceInterval { get; set; }   // Двусторонние доверительные интервалы
+        public double VaR { get; set; }                    // Стоимость под риском (Value at Risk)
+    }
+
+    // Вычислительное ядро (Раздел 2.1 и 3.2 пояснительной записки)
+    public class MonteCarloSimulator
+    {
+        private readonly Random _random = new Random();
+
+        // Реализация генератора N(0, 1) строго по Центральной Предельной Теореме (Формула 3.2.1)
+        private double GetNormalRandomCLT()
+        {
+            double sum = 0.0;
+            for (int k = 0; k < 12; k++)
+            {
+                sum += _random.NextDouble();
+            }
+            return sum - 6.0; // Центрирование случайной величины
+        }
+
+        public SimulationResults RunSimulation(SimulationParameters p)
+        {
+            double dt = p.T / p.M;
+            double[][] priceMatrix = new double[p.N][];
+            double[] terminalPrices = new double[p.N];
+            double[] priceChanges = new double[p.N];
+
+            // Основной цикл моделирования по схеме Эйлера-Маруямы (Раздел 3.2)
+            for (int i = 0; i < p.N; i++)
+            {
+                priceMatrix[i] = new double[p.M + 1];
+                priceMatrix[i][0] = p.S_0;
+                double currentPrice = p.S_0;
+
+                for (int j = 1; j <= p.M; j++)
+                {
+                    double z = GetNormalRandomCLT();
+                    currentPrice = currentPrice * Math.Exp((p.Mu - 0.5 * p.Sigma * p.Sigma) * dt + p.Sigma * Math.Sqrt(dt) * z);
+                    priceMatrix[i][j] = currentPrice;
+                }
+
+                terminalPrices[i] = currentPrice;
+                priceChanges[i] = currentPrice - p.S_0;
+            }
+
+            double mean = terminalPrices.Average();
+            double variance = CalculateVariance(terminalPrices, mean);
+
+            var results = new SimulationResults
+            {
+                PriceMatrix = priceMatrix,
+                TerminalPrices = terminalPrices,
+                ExpectedValue = mean,
+                Variance = variance,
+                StandardDeviation = Math.Sqrt(variance),
+                Median = CalculateMedian(terminalPrices)
+            };
+
+            // Расчет меры риска VaR методом сортировки (Алгоритм QuickSort со сложностью O(N log N))
+            Array.Sort(priceChanges);
+            double alpha = 1.0 - p.P;
+            int varIndex = (int)Math.Round(p.N * alpha);
+
+            if (varIndex >= p.N) varIndex = p.N - 1;
+            if (varIndex < 0) varIndex = 0;
+
+            results.VaR = priceChanges[varIndex] < 0 ? -priceChanges[varIndex] : 0;
+
+            // Расчет двусторонних доверительных интервалов прогнозных цен
+            double[] sortedPrices = (double[])terminalPrices.Clone();
+            Array.Sort(sortedPrices);
+            int lowerIdx = (int)(p.N * (alpha / 2.0));
+            int upperIdx = (int)(p.N * (1.0 - alpha / 2.0));
+
+            if (lowerIdx < 0) lowerIdx = 0;
+            if (upperIdx >= p.N) upperIdx = p.N - 1;
+            results.ConfidenceInterval = new double[] { sortedPrices[lowerIdx], sortedPrices[upperIdx] };
+
+            return results;
+        }
+
+        private double CalculateVariance(double[] values, double mean)
+        {
+            double sum = 0;
+            foreach (var v in values) sum += Math.Pow(v - mean, 2);
+            return values.Length > 1 ? sum / (values.Length - 1) : 0;
+        }
+
+        private double CalculateMedian(double[] values)
+        {
+            double[] copy = (double[])values.Clone();
+            Array.Sort(copy);
+            int mid = copy.Length / 2;
+            return (copy.Length % 2 != 0) ? copy[mid] : (copy[mid - 1] + copy[mid]) / 2.0;
+        }
+    }
+
+    // Модуль жесткой валидации данных (Раздел 3.3 пояснительной записки)
+    public static class Validator
+    {
+        // Ограничения для предотвращения переполнения памяти и зависания интерфейса
+        private const int MAX_N = 1000000; // Максимальное количество симуляций
+        private const int MAX_M = 1000;    // Максимальное количество шагов
+        private const double MAX_S0 = 1000000; // Адекватный лимит начальной цены
+
+        public static bool Validate(
+            string s0Text, string muText, string sigmaText,
+            string tText, string mText, string nText, string pText,
+            out SimulationParameters parameters, out string errorMessage)
+        {
+            parameters = null;
+            errorMessage = string.Empty;
+
+            // Валидация S0
+            if (!double.TryParse(s0Text, out double s0) || s0 <= 0 || s0 > MAX_S0)
+            {
+                errorMessage = $"Начальная цена (S_0) должна быть в диапазоне (0; {MAX_S0}].";
+                return false;
+            }
+
+            // Валидация Mu
+            if (!double.TryParse(muText, out double mu))
+            {
+                errorMessage = "Коэффициент дрейфа (Mu) введен некорректно.";
+                return false;
+            }
+
+            // Валидация Sigma
+            if (!double.TryParse(sigmaText, out double sigma) || sigma < 0 || sigma > 5) // >500% волатильности редко имеет смысл
+            {
+                errorMessage = "Волатильность (Sigma) должна быть от 0 до 5 (0-500%).";
+                return false;
+            }
+
+            // Валидация T
+            if (!double.TryParse(tText, out double t) || t <= 0 || t > 100)
+            {
+                errorMessage = "Горизонт (T) должен быть от 0 до 100 лет.";
+                return false;
+            }
+
+            // Валидация M (Количество шагов)
+            if (!int.TryParse(mText, out int m) || m <= 0 || m > MAX_M)
+            {
+                errorMessage = $"Количество шагов (M) должно быть целым числом от 1 до {MAX_M}.";
+                return false;
+            }
+
+            // Валидация N (Количество реализаций)
+            if (!int.TryParse(nText, out int n) || n <= 0 || n > MAX_N)
+            {
+                errorMessage = $"Количество реализаций (N) должно быть целым числом от 1 до {MAX_N}.";
+                return false;
+            }
+
+            // Валидация P
+            if (!double.TryParse(pText, out double p) || p <= 0 || p >= 1)
+            {
+                errorMessage = "Доверительная вероятность (P) должна находиться в интервале (0; 1).";
+                return false;
+            }
+
+            parameters = new SimulationParameters { S_0 = s0, Mu = mu, Sigma = sigma, T = t, M = m, N = n, P = p };
+            return true;
+        }
+    }
+
+    // Контроллер главной формы интерфейса
+    public partial class Form1 : Form
+    {
+        private Label lblConfidenceInterval;
+        private Button btnExport;
+        private readonly MonteCarloSimulator _simulator = new MonteCarloSimulator();
+        private SimulationParameters _latestParameters;
+        private SimulationResults _latestResults;
+
+        public Form1()
+        {
+            InitializeComponent();
+
+            // Принудительно включаем перехват нажатий клавиш для всей формы
+            this.KeyPreview = true;
+
+            // Подписываем форму на событие нажатия клавиш
+            this.KeyDown += Form1_KeyDown;
+
+            // Инициализация дополнительных элементов
+            this.lblConfidenceInterval = new System.Windows.Forms.Label();
+
+            // Инициализация программной кнопки экспорта
+            btnExport = new Button();
+            btnExport.Text = "Экспорт в CSV";
+
+            // Копируем размер и стиль кнопки "Рассчитать"
+            btnExport.Size = btnStart.Size;
+            // Устанавливаем положение: под всеми существующими элементами
+            btnExport.Location = new Point(btnStart.Location.X, btnStart.Location.Y + btnStart.Height + 174);
+
+            btnExport.Click += new EventHandler(btnExport_Click);
+            this.Controls.Add(btnExport);
+            btnExport.BringToFront();
+        }
+
+        // Инициализация полей ввода значениями по умолчанию
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            txtS_0.Text = "100";
+            txtMu.Text = "0,05";
+            txtSigma.Text = "0,2";
+            txtT.Text = "1";
+            txtM.Text = "100";
+            txtN.Text = "1000";
+            txtP.Text = "0,95";
+        }
+
+        // Обработчик нажатия кнопки "Рассчитать"
+        private async void btnStart_Click(object sender, EventArgs e)
+        {
+            if (!Validator.Validate(txtS_0.Text, txtMu.Text, txtSigma.Text, txtT.Text, txtM.Text, txtN.Text, txtP.Text,
+                                    out _latestParameters, out string errorMsg))
+            {
+                MessageBox.Show(errorMsg, "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            btnStart.Enabled = false;
+            this.Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                // Запуск вычислений в фоновом потоке
+                _latestResults = await Task.Run(() => _simulator.RunSimulation(_latestParameters));
+
+                // Отображение рассчитанных статистических показателей
+                lblMean.Text = $"Среднее значение: {_latestResults.ExpectedValue:F2}";
+                lblMedian.Text = $"Медиана: {_latestResults.Median:F2}";
+                lblStdDev.Text = $"Станд. отклонение: {_latestResults.StandardDeviation:F2}";
+                lblVaR.Text = $"Риск VaR ({_latestParameters.P * 100}%): {_latestResults.VaR:F2}";
+                lblConfidenceInterval.Text = $"Дов. интервал: [{_latestResults.ConfidenceInterval[0]:F2}; {_latestResults.ConfidenceInterval[1]:F2}]";
+
+                // Вывод графиков
+                DisplayCharts(_latestResults, _latestParameters.M);
+            }
+            catch (OutOfMemoryException exMem)
+            {
+                // Освобождение ресурсов при ошибке памяти
+                GC.Collect();
+                MessageBox.Show($"Недостаточно памяти: {exMem.Message}", "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                // Обработка прочих исключений
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка выполнения", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnStart.Enabled = true;
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        // Обработчик экспорта результатов в CSV-файл
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            if (_latestResults == null || _latestParameters == null)
+            {
+                MessageBox.Show("Сначала выполните моделирование.", "Нет данных", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "CSV файлы (*.csv)|*.csv|Все файлы (*.*)|*.*";
+                sfd.FileName = "SimulationResults.csv";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Запись данных в файл с использованием StreamWriter
+                        using (System.IO.StreamWriter writer = new System.IO.StreamWriter(sfd.FileName, false, System.Text.Encoding.UTF8))
+                        {
+                            writer.WriteLine("Параметры модели");
+                            writer.WriteLine($"S0;{_latestParameters.S_0}");
+                            writer.WriteLine($"Mu;{_latestParameters.Mu}");
+                            writer.WriteLine($"Sigma;{_latestParameters.Sigma}");
+                            writer.WriteLine($"T;{_latestParameters.T}");
+                            writer.WriteLine($"N;{_latestParameters.N}");
+                            writer.WriteLine(";;");
+
+                            writer.WriteLine("Статистики");
+                            writer.WriteLine($"Среднее;{_latestResults.ExpectedValue}");
+                            writer.WriteLine($"Медиана;{_latestResults.Median}");
+                            writer.WriteLine($"Станд. отклонение;{_latestResults.StandardDeviation}");
+                            writer.WriteLine($"VaR;{_latestResults.VaR}");
+                            writer.WriteLine(";;");
+
+                            writer.WriteLine("Траектории (первые 100 реализаций)");
+                            string header = "Шаг";
+                            for (int i = 0; i < Math.Min(_latestResults.PriceMatrix.Length, 100); i++) header += $";Путь_{i}";
+                            writer.WriteLine(header);
+
+                            for (int j = 0; j <= _latestParameters.M; j++)
+                            {
+                                string line = $"{j}";
+                                for (int i = 0; i < Math.Min(_latestResults.PriceMatrix.Length, 100); i++)
+                                {
+                                    line += $";{_latestResults.PriceMatrix[i][j]}".Replace('.', ',');
+                                }
+                                writer.WriteLine(line);
+                            }
+                        }
+                        MessageBox.Show("Данные успешно экспортированы!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при экспорте: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        // Метод отрисовки гистограммы распределения и графиков траекторий
+        private void DisplayCharts(SimulationResults results, int steps)
+        {
+            // Отрисовка гистограммы распределения терминальных цен
+            chartHistogram.Series.Clear();
+            Series histSeries = new Series("Distribution") { ChartType = SeriesChartType.Column, Color = Color.DodgerBlue, BorderColor = Color.Black };
+
+            double[] prices = results.TerminalPrices;
+            double maxPrice = prices.Max(); double minPrice = prices.Min();
+            int binCount = 20; double binWidth = (maxPrice - minPrice) / binCount;
+            if (binWidth == 0) binWidth = 1;
+            int[] counts = new int[binCount];
+
+            foreach (var price in prices)
+            {
+                int binIndex = (int)((price - minPrice) / binWidth);
+                if (binIndex >= binCount) binIndex = binCount - 1;
+                if (binIndex < 0) binIndex = 0;
+                counts[binIndex]++;
+            }
+            for (int i = 0; i < binCount; i++)
+            {
+                double binCenter = minPrice + (i + 0.5) * binWidth;
+                histSeries.Points.AddXY(Math.Round(binCenter, 1), counts[i]);
+            }
+            chartHistogram.Series.Add(histSeries);
+
+            // Отрисовка графиков траекторий (выборочно)
+            chartTrajectories.Series.Clear();
+            int pathsToDraw = Math.Min(results.PriceMatrix.Length, 100);
+            for (int i = 0; i < pathsToDraw; i++)
+            {
+                Series lineSeries = new Series($"Путь_{i}") { ChartType = SeriesChartType.Line, BorderWidth = 1 };
+                for (int j = 0; j <= steps; j++) lineSeries.Points.AddXY(j, results.PriceMatrix[i][j]);
+                chartTrajectories.Series.Add(lineSeries);
+            }
+        }
+
+        // Обработчик события клика по меню "Справка"
+        private void справкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = System.IO.Path.Combine(Application.StartupPath, "MonteK.chm");
+
+            if (System.IO.File.Exists(helpPath))
+            {
+                Help.ShowHelp(this, helpPath);
+            }
+            else
+            {
+                MessageBox.Show($"Файл справки не найден! Положите его по пути:\n{helpPath}", "Ошибка поиска файла", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Обработчик нажатия F1 для вызова справки
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F1)
+            {
+                string helpPath = System.IO.Path.Combine(Application.StartupPath, "MonteK.chm");
+
+                if (System.IO.File.Exists(helpPath))
+                {
+                    Help.ShowHelp(this, helpPath);
+                }
+                else
+                {
+                    MessageBox.Show($"Файл справки не найден! Положите его по пути:\n{helpPath}", "Ошибка поиска файла", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+    }
+}
