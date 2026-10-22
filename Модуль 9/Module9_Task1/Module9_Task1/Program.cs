@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace Module9_Task1
 {
-    // Безопасный класс студента
+    // Описание структуры данных студента
     class Student
     {
-        // Инициализируем строки пустыми значениями, чтобы избежать предупреждений CS8618
+        // Инициализация полей значениями по умолчанию
         public string Name { get; set; } = string.Empty;
         public string Group { get; set; } = string.Empty;
         public double Grade { get; set; }
@@ -23,7 +23,7 @@ namespace Module9_Task1
 
         static void Main()
         {
-            // Пытаемся загрузить данные при старте
+            // Загрузка данных из файла при запуске приложения
             LoadFromFile();
 
             while (true)
@@ -38,10 +38,10 @@ namespace Module9_Task1
                 Console.WriteLine("0. Выход");
                 Console.Write("\nВыберите пункт: ");
 
-                string choice = Console.ReadLine() ?? string.Empty; // Обработка NULL ввода
+                string choice = Console.ReadLine() ?? string.Empty;
                 Console.WriteLine();
 
-                // Оборачиваем всю логику в try-catch для обработки ошибок ввода пользователя
+                // Обработка исключений при вводе и выполнении операций
                 try
                 {
                     if (choice == "1")
@@ -52,11 +52,11 @@ namespace Module9_Task1
                     else if (choice == "2")
                     {
                         Console.Write("Введите имя: ");
-                        string name = Console.ReadLine() ?? string.Empty; // Обработка NULL
+                        string name = Console.ReadLine() ?? string.Empty;
                         if (string.IsNullOrWhiteSpace(name)) throw new Exception("Имя не может быть пустым!");
 
                         Console.Write("Введите группу: ");
-                        string group = Console.ReadLine() ?? string.Empty; // Обработка NULL
+                        string group = Console.ReadLine() ?? string.Empty;
                         if (string.IsNullOrWhiteSpace(group)) throw new Exception("Группа не может быть пустой!");
 
                         Console.Write("Введите балл: ");
@@ -69,7 +69,7 @@ namespace Module9_Task1
                     else if (choice == "3")
                     {
                         Console.Write("Введите имя студента для удаления: ");
-                        string name = (Console.ReadLine() ?? string.Empty).Trim(); // Обработка NULL
+                        string name = (Console.ReadLine() ?? string.Empty).Trim();
                         if (string.IsNullOrWhiteSpace(name)) throw new Exception("Имя для удаления не может быть пустым!");
 
                         var target = students.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
@@ -84,10 +84,9 @@ namespace Module9_Task1
                     else if (choice == "4")
                     {
                         Console.Write("Введите имя для поиска: ");
-                        string query = (Console.ReadLine() ?? string.Empty).Trim(); // Обработка NULL
+                        string query = (Console.ReadLine() ?? string.Empty).Trim();
                         if (string.IsNullOrWhiteSpace(query)) throw new Exception("Строка поиска не может быть пустой!");
 
-                        // Перед Contains проверяем имя на NULL, чтобы избежать CS8604
                         var result = students.Where(s => !string.IsNullOrEmpty(s.Name) && s.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
                         int count = 0;
                         foreach (var s in result) { Console.WriteLine(s); count++; }
@@ -109,7 +108,7 @@ namespace Module9_Task1
                 }
                 catch (Exception ex)
                 {
-                    // Обработка всех ошибок в одном месте
+                    // Вывод сообщения об ошибке
                     Console.WriteLine($"\nОШИБКА: {ex.Message}");
                 }
 
@@ -118,7 +117,7 @@ namespace Module9_Task1
             }
         }
 
-        // Безопасное сохранение в файл
+        // Сохранение списка в текстовый файл
         static void SaveToFile()
         {
             try
@@ -131,11 +130,11 @@ namespace Module9_Task1
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при записи в файл: {ex.Message}");
+                Console.WriteLine($"Ошибка записи файла: {ex.Message}");
             }
         }
 
-        // Безопасная загрузка из файла
+        // Чтение данных из текстового файла
         static void LoadFromFile()
         {
             if (!File.Exists(path)) return;
@@ -155,7 +154,7 @@ namespace Module9_Task1
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+                Console.WriteLine($"Ошибка чтения файла: {ex.Message}");
             }
         }
     }
