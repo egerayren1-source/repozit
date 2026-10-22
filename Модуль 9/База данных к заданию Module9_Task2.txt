@@ -1,0 +1,19 @@
+CREATE DATABASE IF NOT EXISTS task_app_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE task_app_db;
+
+DROP TABLE IF EXISTS tasks;
+
+-- Таблица задач, содержащая только то, что указано в требованиях к WPF-приложению
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    priority VARCHAR(50) DEFAULT 'Средний', -- Установка приоритетов
+    status VARCHAR(50) DEFAULT 'Новая',      -- Статус задачи
+    progress INT DEFAULT 0,                  -- Отслеживание прогресса (0-100%)
+    due_date DATE NOT NULL                   -- Назначение дат выполнения
+);
+
+-- Тестовая запись для проверки
+INSERT INTO tasks (title, description, priority, status, progress, due_date) VALUES 
+('Разработать интерфейс WPF', 'Создать окна и привязать элементы управления', 'Высокий', 'В работе', 40, '2026-11-01');

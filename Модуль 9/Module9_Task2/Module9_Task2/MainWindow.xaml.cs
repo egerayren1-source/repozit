@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.ObjectModel;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,8 +22,8 @@ namespace Module9_Task2
 
     public partial class MainWindow : Window
     {
-        // Строка подключения к базе данных проектного управления
-        private string connStr = "Server=localhost;Database=project_management_db;Uid=Zahar;Pwd=3036;charset=utf8;";
+        // Строка подключения обновлена на новую базу данных task_app_db
+        private string connStr = "Server=localhost;Database=task_app_db;Uid=Zahar;Pwd=3036;charset=utf8;";
 
         public ObservableCollection<ProjectTaskModel> Tasks { get; set; }
         private int selectedId = -1;
@@ -92,7 +91,7 @@ namespace Module9_Task2
             }
         }
 
-        // Добавление новой задачи
+        // Добавление новой задачи (без привязки к проектам и сотрудникам)
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TxtTitle.Text))
@@ -106,8 +105,7 @@ namespace Module9_Task2
                 using (MySqlConnection conn = new MySqlConnection(connStr))
                 {
                     conn.Open();
-                    // Привязываем по умолчанию к первому проекту (project_id = 1)
-                    string query = "INSERT INTO tasks (project_id, title, description, priority, status, progress, due_date) VALUES (1, @title, @desc, @priority, @status, @progress, @date)";
+                    string query = "INSERT INTO tasks (title, description, priority, status, progress, due_date) VALUES (@title, @desc, @priority, @status, @progress, @date)";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@title", TxtTitle.Text.Trim());
