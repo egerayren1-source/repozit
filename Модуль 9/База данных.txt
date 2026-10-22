@@ -1,0 +1,75 @@
+-- Создание и выбор базы данных
+CREATE DATABASE IF NOT EXISTS project_management_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE project_management_db;
+
+-- Удаление старых таблиц (если они существовали) в правильном порядке
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS employees;
+
+-- 1. Таблица сотрудников
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    position VARCHAR(100) NOT NULL,
+    email VARCHAR(100)
+);
+
+-- 2. Таблица проектов
+CREATE TABLE projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status VARCHAR(50) DEFAULT 'Планируется'
+);
+
+-- 3. Таблица задач (связывает проекты и сотрудников)
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    employee_id INT,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    priority VARCHAR(50) DEFAULT 'Средний', -- Низкий, Средний, Высокий, Срочный
+    status VARCHAR(50) DEFAULT 'Новая',      -- Новая, В работе, Завершена
+    progress INT DEFAULT 0,                  -- Процент выполнения (от 0 до 100)
+    due_date DATE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE SET NULL
+);
+
+-- ТЕСТОВЫЕ ДАННЫЕ ДЛЯ ПРОВЕРКИ
+
+-- Сотрудники
+INSERT INTO employees (full_name, position, email) VALUES 
+('Иванов Иван', 'Разработчик C#', 'ivanov@company.local'),
+('Петров Петр', 'Тестировщик QA', 'petrov@company.local'),
+('Сидорова Анна', 'Менеджер проектов', 'sidorova@company.local');
+
+-- Проекты
+INSERT INTO projects (name, description, start_date, end_date, status) VALUES 
+('Разработка CRM-системы', 'Внутренняя корпоративная система учета клиентов', '2026-10-01', '2026-12-31', 'В работе'),
+('Мобильное приложение', 'Приложение для клиентов банка под iOS/Android', '2026-11-01', '2027-03-01', 'Планируется');
+
+-- Задачи
+INSERT INTO tasks (project_id, employee_id, title, description, priority, status, progress, due_date) VALUES 
+(1, 1, 'Проектирование структуры БД', 'Создать схемы таблиц и связи в MySQL', 'Высокий', 'В работе', 50, '2026-10-28'),
+(1, 2, 'Написание тестов', 'Подготовить модульные тесты для авторизации', 'Средний', 'Новая', 0, '2026-11-05'),
+(1, 3, 'Согласование ТЗ', 'Утвердить требования с заказчиком', 'Срочный', 'Завершена', 100, '2026-10-10');
+
+-- ФУНКЦИЯ ОТЧЕТНОСТИ (ПРЕДСТАВЛЕНИЕ)
+-- Этот запрос генерирует сводный отчет по статусам проектов и задач
+CREATE OR REPLACE VIEW v_project_status_report AS
+SELECT 
+    p.id AS project_id,
+    p.name AS project_name,
+    p.status AS project_status,
+    COUNT(t.id) AS total_tasks,
+    SUM(CASE WHEN t.status = 'Завершена' THEN 1 ELSE 0 END) AS completed_tasks,
+    ROUND(AVG(t.progress), 2) AS average_progress
+FROM projects p
+LEFT JOIN tasks t ON p.id = t.project_id
+GROUP BY p.id, p.name, p.status;

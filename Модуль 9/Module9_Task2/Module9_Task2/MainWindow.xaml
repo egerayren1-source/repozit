@@ -1,0 +1,59 @@
+﻿<Window x:Class="Module9_Task2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Управление задачами проекта" Height="520" Width="950" WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2.5*"/>
+            <ColumnDefinition Width="1.2*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Таблица задач -->
+        <DataGrid x:Name="DgTasks" AutoGenerateColumns="False" CanUserAddRows="False"
+                  SelectionChanged="DgTasks_SelectionChanged" Margin="0,0,10,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="35"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*"/>
+                <DataGridTextColumn Header="Приоритет" Binding="{Binding Priority}" Width="85"/>
+                <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="85"/>
+                <DataGridTextColumn Header="Прогресс" Binding="{Binding ProgressFormat}" Width="65"/>
+                <DataGridTextColumn Header="Срок" Binding="{Binding DueDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Панель управления и ввода -->
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="Название задачи:" FontWeight="Bold" Margin="0,0,0,3"/>
+            <TextBox x:Name="TxtTitle" Height="25" Margin="0,0,0,8"/>
+
+            <TextBlock Text="Описание:" FontWeight="Bold" Margin="0,0,0,3"/>
+            <TextBox x:Name="TxtDescription" Height="45" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
+
+            <TextBlock Text="Приоритет:" FontWeight="Bold" Margin="0,0,0,3"/>
+            <ComboBox x:Name="CmbPriority" Height="25" Margin="0,0,0,8">
+                <ComboBoxItem Content="Низкий"/>
+                <ComboBoxItem Content="Средний" IsSelected="True"/>
+                <ComboBoxItem Content="Высокий"/>
+                <ComboBoxItem Content="Срочный"/>
+            </ComboBox>
+
+            <TextBlock Text="Статус:" FontWeight="Bold" Margin="0,0,0,3"/>
+            <ComboBox x:Name="CmbStatus" Height="25" Margin="0,0,0,8">
+                <ComboBoxItem Content="Новая" IsSelected="True"/>
+                <ComboBoxItem Content="В работе"/>
+                <ComboBoxItem Content="Завершена"/>
+            </ComboBox>
+
+            <TextBlock Text="Прогресс (%):" FontWeight="Bold" Margin="0,0,0,3"/>
+            <Slider x:Name="SldProgress" Minimum="0" Maximum="100" Value="0" TickFrequency="10" IsSnapToTickEnabled="True" AutoToolTipPlacement="TopLeft" Margin="0,0,0,8"/>
+
+            <TextBlock Text="Срок выполнения:" FontWeight="Bold" Margin="0,0,0,3"/>
+            <DatePicker x:Name="DpDueDate" Height="25" Margin="0,0,0,15"/>
+
+            <Button Content="Добавить задачу" Height="28" Margin="0,0,0,5" Click="BtnAdd_Click"/>
+            <Button Content="Обновить задачу" Height="28" Margin="0,0,0,5" Click="BtnUpdate_Click"/>
+            <Button Content="Удалить задачу" Height="28" Margin="0,0,0,5" Click="BtnDelete_Click"/>
+            <Button Content="Очистить поля" Height="25" Click="BtnClear_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

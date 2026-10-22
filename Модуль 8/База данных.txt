@@ -1,0 +1,16 @@
+DROP DATABASE IF EXISTS task_db;
+CREATE DATABASE task_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE task_db;
+
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'Новая',
+    due_date DATE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Добавление тестовой задачи для проверки
+INSERT INTO tasks (title, description, status, due_date) VALUES 
+('Разработать модуль 8', 'Создать приложение для учета задач и событий с календарем', 'В работе', '2026-10-25');
